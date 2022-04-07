@@ -2,7 +2,7 @@ import random
 import mail
 import PySimpleGUI as sg
 
-from tinydb import TinyDB
+from tinydb import TinyDB, Query
 from threading import Thread
 
 #sg.theme('DarkAmber')    # Keep things interesting for your users
@@ -43,9 +43,9 @@ layout = law_send_to_users_layout
 
 window = sg.Window("Nice texts sender", layout, finalize=True)
 
-def process_edituser_windown(idx):
+def process_edituser_windown(element_name):
     users = db.table('users')
-    user = users.get(doc_id=idx+1)
+    user = users.get(Query()['Name'] == element_name)
     edit_user_layout = [[sg.Text("User Name"), sg.Input(key="Name", default_text=user["Name"])],
                         [sg.Text("User mail"), sg.Input(key="Mail", default_text=user["Mail"])],
                         [sg.Text("User Number"),sg.Input(key="Number", default_text=user["Number"])],
@@ -57,7 +57,7 @@ def process_edituser_windown(idx):
         if event == sg.WIN_CLOSED or event == 'Exit':
             break
         if event == 'confirm_useredit':
-            users.update(values, doc_ids=[idx+1])
+            users.update(values, Query()['Name'] == element_name)
             data = conver_user_table_data(users)
             window["users_table"].update(data)
             break
@@ -113,14 +113,16 @@ while True:
     if event == "delete_user":
         if len(values["users_table"]) != 0:
             val_idx = values["users_table"][0]
+            element_name = window["users_table"].get()[val_idx][1]
             users = db.table('users')
-            users.remove(doc_ids=[val_idx+1])
+            users.remove(Query()['Name'] == element_name)
             data = conver_user_table_data(users)
             window["users_table"].update(data)
     if event == "edit_user":
         if len(values["users_table"]) != 0:
             val_idx = values["users_table"][0]
-            process_edituser_windown(val_idx)
+            element_name = window["users_table"].get()[val_idx][1]
+            process_edituser_windown(element_name)
 
     # Pick random text
     if event == "users_pick_random_text":
