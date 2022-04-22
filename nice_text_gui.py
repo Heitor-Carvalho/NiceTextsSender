@@ -16,6 +16,9 @@ def pretty_print_thiking(bias):
 def pretty_print_fable(fable):
     return f"{fable['Text']}"
 
+def pretty_print_anti_seducer(sed):
+    return f"{sed['Text']}"
+
 def conver_user_table_data(users):
     return [list(user.values()) for user in users] 
 
@@ -31,7 +34,7 @@ law_send_to_users_layout = [[sg.Text("Send message to users in table")],
                                       auto_size_columns=False,
                                       enable_events=True,
                                       alternating_row_color="black")],
-                            [sg.Combo(["Daily Laws", "Thinking Critically", "Fables"], key="text_type", default_value="Daily Laws"), \
+                            [sg.Combo(["Daily Laws", "Thinking Critically", "Fables", "Anti Seducers"], key="text_type", default_value="Daily Laws"), \
                              sg.Button('Pick at random', key="users_pick_random_text"), \
                              sg.Button("Send to all users", key="users_send_all_mail")],
                             [sg.Multiline(key="users_law"+sg.WRITE_ONLY_KEY, size=(100, 20), font="Ariel 10")],
@@ -126,7 +129,12 @@ while True:
 
     # Pick random text
     if event == "users_pick_random_text":
-        if values["text_type"] == "Fables":
+        print(values["text_type"])
+        if values["text_type"] == "Anti Seducers":
+            anti_seds = db.table('seduction_antiseducers').all()
+            anti_sed = random.choice(anti_seds)
+            text = pretty_print_anti_seducer(anti_sed)
+        elif values["text_type"] == "Fables":
             fables = db.table('fables').all()
             fable = random.choice(fables)
             text = pretty_print_fable(fable)
